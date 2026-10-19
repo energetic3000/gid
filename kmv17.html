@@ -1,0 +1,477 @@
+<title>17 каменных пузырей</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: одна колонка до 62rem, сверху профиль гор в масштабе высот, дальше разделы-карточки по порядку маршрута */
+:root {
+  --bg: #edf0f2;
+  --surface: #ffffff;
+  --fg: #172026;
+  --muted: #53606a;
+  --line: #cbd3d9;
+  --accent: #2b5c8a;
+  --accent-fg: #ffffff;
+  --accent-soft: #dde8f2;
+  --magma: #c8461b;
+  --rock: #66747e;
+  --rock-hi: #2b5c8a;
+  --layer1: #d9ccb0;
+  --layer2: #bfb28f;
+  --layer3: #a59c82;
+  --sky: #dce8f1;
+  --todo-bg: #fff0a8;
+  --todo-fg: #4a3b00;
+  --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, "Consolas", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101519; --surface: #182027; --fg: #e6ecf0; --muted: #9aa7b1; --line: #2c373f;
+    --accent: #7fb2e0; --accent-fg: #0e1419; --accent-soft: #1f3040;
+    --magma: #e8683a; --rock: #8b97a0; --rock-hi: #7fb2e0;
+    --layer1: #5b5443; --layer2: #4c4637; --layer3: #3e392e; --sky: #16222c;
+    --todo-bg: #4a4010; --todo-fg: #ffe98a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101519; --surface: #182027; --fg: #e6ecf0; --muted: #9aa7b1; --line: #2c373f;
+  --accent: #7fb2e0; --accent-fg: #0e1419; --accent-soft: #1f3040;
+  --magma: #e8683a; --rock: #8b97a0; --rock-hi: #7fb2e0;
+  --layer1: #5b5443; --layer2: #4c4637; --layer3: #3e392e; --sky: #16222c;
+  --todo-bg: #4a4010; --todo-fg: #ffe98a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.55;
+}
+.wrap { max-width: 62rem; margin-inline: auto; padding-inline: 16px; padding-block: 24px 64px; display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 7vw, 3.6rem); line-height: 1.05; letter-spacing: -0.01em; }
+h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.25rem, 3.6vw, 1.7rem); line-height: 1.2; }
+h3 { font-family: var(--font-body); font-weight: 700; font-size: 1.2rem; }
+p { margin: 0; max-width: 65ch; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.muted { color: var(--muted); }
+.eyebrow { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.todo { background: var(--todo-bg); color: var(--todo-fg); padding: 0 5px; border-radius: 3px; font-size: 0.92em; }
+section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* hero */
+.hero { gap: 18px; }
+.hero .lead { font-size: 1.2rem; max-width: 46ch; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 0; }
+.facts div { padding: 12px 16px 12px 0; min-width: 0; }
+.facts dt { font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.facts dd { margin: 2px 0 0; font-weight: 600; }
+.profile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 12px 6px; }
+.profile svg { display: block; width: 100%; height: auto; }
+.profile .cap { font-size: 0.9rem; color: var(--muted); padding: 4px 4px 8px; max-width: none; }
+.peak { cursor: pointer; }
+.peak path { fill: var(--rock); fill-opacity: 0.55; stroke: var(--rock); stroke-width: 2; transition: fill-opacity .15s; }
+.peak:hover path, .peak:focus-visible path, .peak.on path { fill: var(--rock-hi); fill-opacity: 0.8; stroke: var(--rock-hi); }
+.peak:focus-visible { outline: none; }
+.peak:focus-visible path { stroke-width: 4; }
+.peak text { fill: var(--fg); font-family: var(--font-body); }
+.peak .h { font-family: var(--font-data); fill: var(--muted); }
+.grid-line { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 5; }
+.grid-label { fill: var(--muted); font-family: var(--font-data); font-size: 18px; }
+
+/* lists */
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.panel ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+
+/* formation stepper */
+.stepper { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.tab { flex: 1 1 10rem; font: inherit; font-weight: 600; text-align: left; padding: 12px 16px; background: transparent; color: var(--muted); border: 0; border-right: 1px solid var(--line); cursor: pointer; min-width: 0; }
+.tab:last-child { border-right: 0; }
+.tab[aria-selected="true"] { background: var(--accent-soft); color: var(--fg); box-shadow: inset 0 -3px 0 var(--accent); }
+.stage { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; padding: 16px; align-items: center; }
+.stage svg { width: 100%; height: auto; display: block; border-radius: 6px; }
+.stage .txt { display: flex; flex-direction: column; gap: 10px; }
+.stage .txt p { max-width: none; }
+@media (max-width: 700px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+.svgtext { font-family: var(--font-body); font-size: 15px; fill: var(--fg); }
+
+/* stops */
+.progress { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.bar { flex: 1 1 12rem; height: 10px; background: var(--line); border-radius: 6px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+.stop { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr) 9.5rem; gap: 20px; scroll-margin-top: 16px; }
+.stop.flash { box-shadow: 0 0 0 3px var(--accent); }
+.stop .main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.stop header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.stop .no { font-family: var(--font-data); color: var(--accent); font-weight: 500; }
+.chip { font-family: var(--font-data); font-size: 0.85rem; background: var(--accent-soft); padding: 2px 8px; border-radius: 4px; }
+.stop dl { margin: 0; display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 6px 14px; }
+.stop dt { color: var(--muted); font-size: 0.88rem; font-weight: 600; padding-top: 2px; }
+.stop dd { margin: 0; min-width: 0; }
+.stop ul { margin: 0; padding-left: 1.1em; }
+.quest { background: var(--accent-soft); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.quest p { max-width: none; }
+.btn { font: inherit; font-weight: 600; background: var(--accent); color: var(--accent-fg); border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn.alt { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.answer { font-weight: 600; }
+.side { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.qr { background: #ffffff; border-radius: 6px; padding: 6px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #333333; text-align: center; max-width: 100%; }
+.qr img { width: 100%; height: auto; image-rendering: pixelated; display: block; }
+.side small { color: var(--muted); line-height: 1.3; }
+.visited { display: flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; }
+.visited input { width: 20px; height: 20px; accent-color: var(--accent); }
+@media (max-width: 640px) {
+  .stop { grid-template-columns: minmax(0, 1fr); }
+  .side { flex-direction: row; align-items: center; flex-wrap: wrap; }
+  .qr { width: 8.5rem; }
+  .stop dl { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .stop dt { padding-top: 8px; }
+}
+
+/* tables */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 30rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.state { font-size: 0.82rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+.state.ok { background: var(--accent-soft); color: var(--fg); }
+.state.wip { background: var(--todo-bg); color: var(--todo-fg); }
+
+footer { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 0.92rem; }
+footer p { max-width: none; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+<section class="hero" id="top">
+  <p class="eyebrow">Краевой конкурс «Технотуризм: открываем мир технологий» · номинация «Техно-маршрут родного края»</p>
+  <h1>17 каменных пузырей</h1>
+  <p class="lead">Маршрут по горам-лакколитам Кавказских Минеральных Вод: как магма, не дошедшая до поверхности, вырастила целые горы.</p>
+  <dl class="facts">
+    <div><dt>Формат</dt><dd>на транспорте с короткими пешими выходами к видовым точкам</dd></div>
+    <div><dt>Остановок</dt><dd>6 подробно, ещё 11 гор в списке</dd></div>
+    <div><dt>Длительность</dt><dd><span class="todo">уточнить после выезда</span></dd></div>
+    <div><dt>Протяжённость</dt><dd><span class="todo">уточнить по карте</span></dd></div>
+    <div><dt>Для кого</dt><dd>семьи с детьми от 10 лет, школьные группы, туристы КМВ</dd></div>
+  </dl>
+  <div class="profile">
+    <svg id="profile" viewBox="0 0 960 330" role="group" aria-label="Профиль высот шести гор маршрута в одном масштабе"></svg>
+    <p class="cap">Высоты нарисованы в одном масштабе, от уровня моря. Нажмите на гору, чтобы перейти к её карточке. Высоты взяты из путеводителя и перед публикацией сверяются со справочником.</p>
+  </div>
+</section>
+
+<section id="why">
+  <h2>Как рождается лакколит</h2>
+  <p>Лакколит это гора из магмы, которая застыла под землёй. Лакколитами называют и сами горы: слои над магмой выгнулись куполом, а потом ветер и вода убрали мягкие породы. Путеводители относят этот процесс к периоду около 10 миллионов лет назад.</p>
+  <div class="stepper">
+    <div class="tabs" role="tablist" aria-label="Стадии образования горы" id="tabs"></div>
+    <div class="stage">
+      <svg id="formation" viewBox="0 0 600 270" role="img" aria-label="Схема образования лакколита в трёх стадиях"></svg>
+      <div class="txt" id="stagetxt" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section id="stops">
+  <h2>Остановки маршрута</h2>
+  <p>Расстояния даны от Пятигорска по описанию в путеводителе. Порядок остановок можно менять под транспорт и погоду. Подъёмы на вершины в маршрут не входят: мы идём к смотровым точкам и подходам.</p>
+  <div class="progress">
+    <strong id="ptext">Отмечено 0 из 6</strong>
+    <div class="bar" aria-hidden="true"><i id="pbar"></i></div>
+    <button class="btn alt" id="reset" type="button">Сбросить отметки</button>
+  </div>
+  <div id="stoplist" style="display:flex;flex-direction:column;gap:20px"></div>
+</section>
+
+<section id="others">
+  <h2>Остальные горы списка</h2>
+  <p>Считается, что на КМВ 17 гор-лакколитов. Шесть мы описали по источникам. Пять названы в описании экскурсии, но подробностей о них мы пока не проверили. Для остальных мы ищем названия в краеведческих источниках.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Гора</th><th>Статус</th><th>Что делаем дальше</th></tr></thead>
+      <tbody>
+        <tr><td>Машук, Бештау, Железная, Развалка, Змейка, Лысая</td><td><span class="state ok">описаны</span></td><td>Сверить высоты и факты со вторым источником.</td></tr>
+        <tr><td>Бык, Верблюд, Медовая, Юца, Джуца</td><td><span class="state wip">названы</span></td><td>Найти высоты, расположение и доступные видовые точки.</td></tr>
+        <tr><td>Ещё шесть гор списка</td><td><span class="state wip">в поиске</span></td><td>Составить полный список по краеведческому справочнику <span class="todo">назвать источник</span>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="safe">
+  <h2>Безопасность и бережное отношение к природе</h2>
+  <div class="two">
+    <div class="panel">
+      <h3>Безопасность</h3>
+      <ul>
+        <li>Дети и подростки ходят только со взрослым, группа держится вместе.</li>
+        <li>В жару, при грозе, тумане и после ливня пешие выходы отменяются.</li>
+        <li>Идём по тропам и дорогам, на склоны и скалы не поднимаемся.</li>
+        <li>Гроты и пещеры осматриваем снаружи, если нет опытного сопровождающего.</li>
+        <li>Карьеры и закрытые территории смотрим издали.</li>
+        <li>С собой: вода, головной убор, удобная обувь, заряженный телефон. Экстренный номер: 112.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Природа и наследие</h3>
+      <ul>
+        <li>Мусор уносим с собой, огонь не разводим.</li>
+        <li>Камни, растения и находки не забираем. Если нашли что-то похожее на археологическую находку, фотографируем и сообщаем в музей.</li>
+        <li>Маршрут рассчитан на цифровые материалы, печатные листовки не нужны.</li>
+        <li>Фотографии объектов по желанию передаём в краеведческий музей <span class="todo">согласовать</span>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="info">
+  <h2>Туристу на заметку</h2>
+  <div class="tbl">
+    <table>
+      <tbody>
+        <tr><th scope="row">Как добраться</th><td>Электрички и автобусы до Пятигорска и Железноводска <span class="todo">расписание и цены уточнить</span></td></tr>
+        <tr><th scope="row">Между остановками</th><td>Такси, прокат автомобиля или экскурсионная поездка <span class="todo">сравнить цены</span></td></tr>
+        <tr><th scope="row">Где остановиться</th><td><span class="todo">2–3 варианта в Пятигорске и Железноводске</span></td></tr>
+        <tr><th scope="row">Где поесть</th><td><span class="todo">2–3 места рядом с остановками</span></td></tr>
+        <tr><th scope="row">Лучшее время</th><td>Светлое время суток, ясная погода. Для видов на Эльбрус нужна хорошая видимость.</td></tr>
+        <tr><th scope="row">Стоимость</th><td>Страница бесплатная. Канатная дорога и музеи по их тарифам <span class="todo">уточнить</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="tech">
+  <h2>Технологии на этой странице</h2>
+  <div class="two">
+    <div class="panel"><h3>Профиль высот</h3><p>График строится из данных в одном масштабе, поэтому видно, что Бештау почти вдвое выше Лысой.</p></div>
+    <div class="panel"><h3>Схема образования</h3><p>Три интерактивные стадии объясняют, откуда взялись горы, без длинного текста.</p></div>
+    <div class="panel"><h3>QR-коды</h3><p>Каждый код открывает объект в Яндекс.Картах. Их можно напечатать на карточках маршрута.</p></div>
+    <div class="panel"><h3>Отметки прогресса</h3><p>Отметки хранятся только в вашем браузере. Мы не собираем данные посетителей.</p></div>
+  </div>
+</section>
+
+<section id="src">
+  <h2>Источники</h2>
+  <ul style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px">
+    <li><a href="https://www.sputnik8.com/ru/pyatigorsk/pages/gory-pyatigorska" target="_blank" rel="noopener">Горы Пятигорья: высоты, возраст, что смотреть</a> (Sputnik8)</li>
+    <li><a href="https://extraguide.ru/russia/zheleznovodsk/excursion-120860/" target="_blank" rel="noopener">Поездка к 17 горам-лакколитам КавМинВод</a> (описание экскурсии: названия гор)</li>
+    <li><a href="https://www.putevka.com/kavminvody/pyatigorsk/sight/gora-beshtau" target="_blank" rel="noopener">Гора Бештау: вершины и история</a> (Putevka.com)</li>
+    <li><a href="https://sh2-lermontov-r07.gosweb.gosuslugi.ru/netcat_files/223/3337/Toponimika_nashih_sosedey.pdf" target="_blank" rel="noopener">Топонимика соседей города Лермонтов</a> (происхождение названия Бештау)</li>
+    <li class="muted">Факты проверяются по второму источнику и по краеведческим изданиям <span class="todo">добавить после работы в музее</span></li>
+  </ul>
+</section>
+
+<footer>
+  <p><strong>Авторы проекта:</strong> <span class="todo">ФИО, возраст, образовательная организация</span></p>
+  <p><strong>Руководитель:</strong> <span class="todo">ФИО, должность</span> · <strong>Муниципальное образование:</strong> <span class="todo">укажите</span></p>
+  <p>Проект подготовлен для краевого конкурса «Технотуризм: открываем мир технологий».</p>
+</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(function () {
+  var STOPS = [
+    { id: 'mashuk', name: 'Машук', h: 993, where: 'в черте Пятигорска', dist: 'в городе',
+      see: ['озеро Провал', 'беседка «Эолова арфа»', 'памятник Лермонтову', 'гроты'],
+      access: 'Пешком или на канатной дороге. <span class="todo">цены и часы работы уточнить</span>',
+      fact: 'Гора находится в черте города, поэтому её удобно сделать первой остановкой.',
+      q: 'Эолова арфа даёт название беседке на Машуке. Что это за инструмент и почему ему подходит такое место?',
+      a: 'Эолова арфа звучит от ветра, без музыканта. На открытой вершине ветер бывает почти всегда.',
+      safe: 'Идти только по оборудованным дорожкам. Гроты осматривать снаружи.' },
+    { id: 'beshtau', name: 'Бештау', h: 1400, hnote: 'около', where: 'около 14 км от Пятигорска', dist: '14 км',
+      see: ['Монастырское озеро', 'Храм Солнца', 'смотровые площадки', 'Успенский Второафонский мужской монастырь'],
+      access: 'Подъём на вершину в маршрут не входит. Едем к смотровым точкам вокруг горы: по описанию экскурсии дорога поднимается примерно до 800 м. <span class="todo">выбрать и проверить точки</span>',
+      fact: 'У горы пять вершин: Большой и Малый Бештау, Козьи Скалы, Лисий Нос (Два Брата) и Лохматая. Название тюркское: «беш» это пять, «тау» это гора.',
+      q: 'Сколько вершин у Бештау и как это зашифровано в названии?',
+      a: 'Пять. «Беш» значит «пять», «тау» значит «гора». Пятигорск получил имя от этой горы.',
+      safe: 'Не подниматься на вершину без подготовки. В монастыре соблюдать правила посещения.' },
+    { id: 'zheleznaya', name: 'Железная', h: 853, where: 'около 18 км от Пятигорска, рядом с Железноводском', dist: 'около 18 км',
+      see: ['грот вечной мерзлоты', 'пещера первобытного человека', 'в Железноводске: Пушкинская галерея, Яйцо желаний, каскадная лестница'],
+      access: 'Пешком от Железноводска. <span class="todo">описать начало тропы и время в пути</span>',
+      fact: 'Рядом лежит Железноводск, поэтому осмотр горы удобно совместить с прогулкой по курортному парку.',
+      q: 'Найдите у любого источника в Железноводске табличку и запишите его название и температуру воды, если она указана.',
+      a: 'Названия и температуры разные. Сравните два источника и объясните разницу.',
+      safe: 'Воду из источников пьют по рекомендации врача. Грот осматривать снаружи.' },
+    { id: 'razvalka', name: 'Развалка', h: 926, where: 'около 25 км от Пятигорска, дальше Железной', dist: 'около 25 км',
+      see: ['летняя мерзлота', 'родник Графский'],
+      access: '<span class="todo">выяснить, как добраться и где безопасно остановиться</span>',
+      fact: 'По описанию путеводителя, на горе даже летом сохраняется мерзлота.',
+      q: 'Почему на небольшой южной горе летом может сохраняться мерзлота? Предложите гипотезу, потом найдите объяснение в источниках.',
+      a: 'Ответа нет в нашем списке источников. Это задание на самостоятельный поиск.',
+      safe: 'Не заходить в расщелины и не спускаться в углубления.' },
+    { id: 'zmeika', name: 'Змейка', h: 994, where: '25 км от Пятигорска, 4 км от станции КавМинВод', dist: '25 км',
+      see: ['большой карьер на склонах', 'археологические находки (по описанию экскурсии)'],
+      access: 'Ближе всего к железнодорожной станции КавМинВод. <span class="todo">уточнить дорогу и место для остановки</span>',
+      fact: 'Люди изменили форму этой горы: на склонах виден большой карьер.',
+      q: 'Чем гора со следами карьера отличается от горы, которую не трогали? Опишите по фотографии издали.',
+      a: 'У Змейки склон рассечён карьером, форма купола нарушена. Сравните с Машуком.',
+      safe: 'На территорию карьера не заходить, смотреть издали.' },
+    { id: 'lysaya', name: 'Лысая', h: 739, where: 'около 30 км восточнее Пятигорска, станица Лысогорская', dist: 'около 30 км',
+      see: ['панорама на Пятигорск', 'горный Кавказ', 'Эльбрус в ясную погоду'],
+      access: 'Пешком от станицы Лысогорской. <span class="todo">описать тропу, время и сложность</span>',
+      fact: 'Самая низкая из шести гор. По описанию путеводителя, с неё открываются панорамы на Пятигорск, Кавказ и Эльбрус.',
+      q: 'В ясную погоду найдите на горизонте Эльбрус и сфотографируйте панораму. Что вы видите между вами и Эльбрусом?',
+      a: 'Между ними видны другие горы и предгорья. Запишите, какие вы узнали.',
+      safe: 'Идти по тропе, не отходить от группы. При дымке или тумане вид не искать, спуск без остановок.' }
+  ];
+
+  /* ---------- profile ---------- */
+  var base = 250, k = 215 / 1400, svgp = '';
+  [500, 1000].forEach(function (v) {
+    var y = base - v * k;
+    svgp += '<line class="grid-line" x1="64" x2="950" y1="' + y + '" y2="' + y + '"/><text class="grid-label" x="4" y="' + (y - 5) + '">' + v + ' м</text>';
+  });
+  svgp += '<line x1="64" x2="950" y1="' + base + '" y2="' + base + '" stroke="var(--rock)" stroke-width="2"/>';
+  STOPS.forEach(function (s, i) {
+    var cx = 140 + i * 140, hh = s.h * k, d = '';
+    for (var x = -110; x <= 110; x += 5) {
+      var y = base - hh * Math.exp(-Math.pow(x / 58, 2));
+      d += (d ? ' L' : 'M') + (cx + x) + ',' + y.toFixed(1);
+    }
+    d += ' L' + (cx + 110) + ',' + base + ' L' + (cx - 110) + ',' + base + ' Z';
+    svgp += '<g class="peak" data-id="' + s.id + '" tabindex="0" role="link" aria-label="' + s.name + ', ' + (s.hnote ? s.hnote + ' ' : '') + s.h + ' м">' +
+      '<path d="' + d + '"/>' +
+      '<text x="' + cx + '" y="280" text-anchor="middle" font-size="22" font-weight="700">' + s.name + '</text>' +
+      '<text class="h" x="' + cx + '" y="308" text-anchor="middle" font-size="19">' + s.h + ' м</text></g>';
+  });
+  document.getElementById('profile').innerHTML = svgp;
+
+  /* ---------- formation ---------- */
+  function band(topY, botY, aT, aB, half) {
+    var l = 300 - half, r = 300 + half;
+    return 'M0,' + topY + ' L' + l + ',' + topY + ' Q300,' + (topY - 2 * aT) + ' ' + r + ',' + topY + ' L600,' + topY +
+      ' L600,' + botY + ' L' + r + ',' + botY + ' Q300,' + (botY - 2 * aB) + ' ' + l + ',' + botY + ' L0,' + botY + ' Z';
+  }
+  function text(x, y, t, anchor) { return '<text class="svgtext" x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'start') + '">' + t + '</text>'; }
+  var F = {
+    1: '<rect width="600" height="270" fill="var(--sky)"/>' +
+       '<path d="' + band(120, 160, 0, 0, 150) + '" fill="var(--layer1)"/>' +
+       '<path d="' + band(160, 200, 0, 0, 150) + '" fill="var(--layer2)"/>' +
+       '<path d="' + band(200, 240, 0, 0, 150) + '" fill="var(--layer3)"/>' +
+       '<rect x="0" y="240" width="600" height="30" fill="var(--rock)" fill-opacity=".5"/>' +
+       '<rect x="288" y="206" width="24" height="64" fill="var(--magma)"/><rect x="262" y="200" width="76" height="8" rx="3" fill="var(--magma)"/>' +
+       '<path d="M300,236 L300,214 M292,222 L300,212 L308,222" stroke="var(--bg)" stroke-width="3" fill="none"/>' +
+       text(14, 100, 'поверхность земли') + text(340, 262, 'магма поднимается'),
+    2: '<rect width="600" height="270" fill="var(--sky)"/>' +
+       '<path d="' + band(110, 155, 56, 50, 170) + '" fill="var(--layer1)"/>' +
+       '<path d="' + band(155, 200, 50, 44, 170) + '" fill="var(--layer2)"/>' +
+       '<rect x="0" y="200" width="600" height="40" fill="var(--layer3)"/>' +
+       '<path d="M130,200 Q300,' + (200 - 2 * 44) + ' 470,200 Z" fill="var(--magma)"/>' +
+       '<rect x="0" y="240" width="600" height="30" fill="var(--rock)" fill-opacity=".5"/>' +
+       '<rect x="288" y="200" width="24" height="70" fill="var(--magma)"/>' +
+       text(14, 70, 'слои выгибаются куполом') + text(340, 262, 'магма растекается между слоями'),
+    3: '<rect width="600" height="270" fill="var(--sky)"/>' +
+       '<path d="M0,185 L150,195 L150,240 L0,240 Z" fill="var(--layer2)"/><path d="M600,185 L450,195 L450,240 L600,240 Z" fill="var(--layer2)"/>' +
+       '<rect x="0" y="200" width="600" height="40" fill="var(--layer3)"/>' +
+       '<path d="M135,200 Q300,' + (200 - 2 * 130) + ' 465,200 Z" fill="var(--rock)"/>' +
+       '<rect x="0" y="240" width="600" height="30" fill="var(--rock)" fill-opacity=".5"/>' +
+       text(14, 175, 'мягкие слои размыты') + text(300, 52, 'гора из застывшей магмы', 'middle')
+  };
+  var STAGES = [
+    { t: '1. Магма поднимается', p: 'Расплавленная порода из глубины идёт вверх по трещине. До поверхности она не добирается и останавливается между слоями осадочных пород.', n: 'Около 10 млн лет назад' },
+    { t: '2. Растекается и поднимает слои', p: 'Магма растекается между слоями и давит вверх. Слои над ней выгибаются куполом, как пузырь под тканью. Отсюда и прозвище «каменные пузыри».', n: 'Купол растёт, пока магма не остынет' },
+    { t: '3. Остывает, ветер убирает лишнее', p: 'Застывшая магма превращается в твёрдый камень. Дожди и ветер за миллионы лет размывают мягкие слои, а твёрдая порода остаётся горой.', n: 'Так возникли Машук, Бештау, Железная и их соседи' }
+  ];
+  var tabs = document.getElementById('tabs'), cur = 1;
+  STAGES.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.className = 'tab'; b.type = 'button'; b.setAttribute('role', 'tab'); b.id = 'tab' + (i + 1);
+    b.textContent = s.t; b.addEventListener('click', function () { show(i + 1); });
+    tabs.appendChild(b);
+  });
+  function show(n) {
+    cur = n;
+    document.getElementById('formation').innerHTML = F[n];
+    var s = STAGES[n - 1];
+    document.getElementById('stagetxt').innerHTML = '<h3>' + s.t + '</h3><p>' + s.p + '</p><p class="muted">' + s.n + '</p>' +
+      '<div><button class="btn alt" type="button" id="nextstage">' + (n < 3 ? 'Дальше' : 'Сначала') + '</button></div>';
+    document.getElementById('nextstage').addEventListener('click', function () { show(n < 3 ? n + 1 : 1); });
+    Array.prototype.forEach.call(tabs.children, function (b, i) { b.setAttribute('aria-selected', i + 1 === n ? 'true' : 'false'); });
+  }
+  show(1);
+
+  /* ---------- stops ---------- */
+  var KEY = 'kmv17-visited', visited = [];
+  try { visited = JSON.parse(localStorage.getItem(KEY) || '[]'); if (!Array.isArray(visited)) visited = []; } catch (e) { visited = []; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(visited)); } catch (e) {} }
+  function mapUrl(s) { return 'https://yandex.ru/maps/?text=' + encodeURIComponent('гора ' + s.name + ', Ставропольский край'); }
+
+  var list = document.getElementById('stoplist');
+  STOPS.forEach(function (s, i) {
+    var el = document.createElement('article');
+    el.className = 'stop'; el.id = 'stop-' + s.id;
+    el.innerHTML =
+      '<div class="main"><header><span class="no">Остановка ' + (i + 1) + '</span><h3>' + s.name + '</h3>' +
+      '<span class="chip">' + (s.hnote ? s.hnote + ' ' : '') + s.h + ' м</span></header>' +
+      '<dl><dt>Где</dt><dd>' + s.where + '</dd>' +
+      '<dt>Что увидеть</dt><dd><ul>' + s.see.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></dd>' +
+      '<dt>Как добраться</dt><dd>' + s.access + '</dd>' +
+      '<dt>Факт</dt><dd>' + s.fact + '</dd>' +
+      '<dt>Безопасность</dt><dd>' + s.safe + '</dd></dl>' +
+      '<div class="quest"><strong>Задание</strong><p>' + s.q + '</p>' +
+      '<button class="btn alt" type="button" data-ans="' + s.id + '">Показать ответ</button>' +
+      '<p class="answer" id="ans-' + s.id + '" hidden>' + s.a + '</p></div></div>' +
+      '<div class="side"><div class="qr" id="qr-' + s.id + '">QR</div>' +
+      '<small>Код открывает «' + s.name + '» в Яндекс.Картах</small>' +
+      '<a class="btn" href="' + mapUrl(s) + '" target="_blank" rel="noopener">Открыть на карте</a>' +
+      '<label class="visited"><input type="checkbox" id="chk-' + s.id + '" data-id="' + s.id + '"> Я был здесь</label></div>';
+    list.appendChild(el);
+    var chk = el.querySelector('input'); chk.checked = visited.indexOf(s.id) >= 0;
+    try {
+      var qr = qrcode(0, 'M'); qr.addData(mapUrl(s)); qr.make();
+      document.getElementById('qr-' + s.id).innerHTML = '<img alt="QR-код: ' + s.name + ' на карте" src="' + qr.createDataURL(4, 2) + '">';
+    } catch (e) { document.getElementById('qr-' + s.id).textContent = 'QR недоступен, используйте кнопку'; }
+  });
+
+  function progress() {
+    var n = STOPS.filter(function (s) { return visited.indexOf(s.id) >= 0; }).length;
+    document.getElementById('ptext').textContent = 'Отмечено ' + n + ' из ' + STOPS.length;
+    document.getElementById('pbar').style.width = (n / STOPS.length * 100) + '%';
+  }
+  progress();
+
+  list.addEventListener('change', function (e) {
+    var id = e.target.getAttribute && e.target.getAttribute('data-id');
+    if (!id) return;
+    var at = visited.indexOf(id);
+    if (e.target.checked && at < 0) visited.push(id);
+    if (!e.target.checked && at >= 0) visited.splice(at, 1);
+    save(); progress();
+  });
+  list.addEventListener('click', function (e) {
+    var a = e.target.getAttribute && e.target.getAttribute('data-ans');
+    if (!a) return;
+    var p = document.getElementById('ans-' + a);
+    p.hidden = !p.hidden;
+    e.target.textContent = p.hidden ? 'Показать ответ' : 'Скрыть ответ';
+  });
+  document.getElementById('reset').addEventListener('click', function () {
+    visited = []; save(); progress();
+    Array.prototype.forEach.call(list.querySelectorAll('input[type=checkbox]'), function (c) { c.checked = false; });
+  });
+
+  /* ---------- peak click ---------- */
+  function go(id) {
+    var el = document.getElementById('stop-' + id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    el.classList.add('flash'); setTimeout(function () { el.classList.remove('flash'); }, 1600);
+    Array.prototype.forEach.call(document.querySelectorAll('.peak'), function (p) { p.classList.toggle('on', p.getAttribute('data-id') === id); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.peak'), function (p) {
+    p.addEventListener('click', function () { go(p.getAttribute('data-id')); });
+    p.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(p.getAttribute('data-id')); } });
+  });
+})();
+</script>
